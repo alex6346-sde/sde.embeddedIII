@@ -46,26 +46,29 @@ class API {
             char sbuffer[255]; 
             char rbuffer[255];
 
+            char header[100];
+
+            sprintf(header, "Content-Type: application/json\r\nContent-length: %d", body.length());
+
             //connect
             this->connect();
             this->displayIPAddress();
 
             // Send a simple http post request
-            sprintf(sbuffer, "POST %s HTTP/1.1\r\nHost: %s\r\n%s\r\n\r\n%s", endpoint.c_str(), this->hostname.c_str(), options.c_str(), body.c_str());
+            sprintf(sbuffer, "POST %s HTTP/1.1\r\nHost: %s\r\n%s\r\n\r\n%s", endpoint.c_str(), this->hostname.c_str(), header, body.c_str());
             int scount = this->socket.send(sbuffer, sizeof sbuffer);
-            printf("sent %s\r\n", sbuffer);
+            printf("send %d [%.*s]\n%s\r\n", scount, strstr(sbuffer, "\r\n") - sbuffer, sbuffer, sbuffer);
+            // printf("sent %s\r\n", sbuffer);
             
             // Recieve a simple http response and print out the response line
             int rcount = this->socket.recv(rbuffer, sizeof rbuffer);
 
-            //printf("recv %d [%.*s]\n", rcount, strstr(rbuffer, "\r\n") - rbuffer, rbuffer);
-            // printf("recv [%.*s]\n", strstr(rbuffer, "\r\n") - rbuffer, rbuffer);
-            printf("recv %s\r\n", rbuffer);
+            printf("recv %d [%.*s]\n%s\r\n", rcount, strstr(rbuffer, "\r\n") - rbuffer, rbuffer, rbuffer);
+            // printf("recv %s\r\n", rbuffer);
 
             //disconnect
             this->disconnect();
         }
-    
 };
 
 class Temperature {
@@ -112,7 +115,7 @@ class Temperature {
 
 int main()
 {
-    API api("postman-echo.com");
+    API api("10.130.54.61");
     Temperature analog(A1);
 
     //<ctime>
@@ -126,8 +129,8 @@ int main()
         time (&rawtime);
         timeinfo = localtime (&rawtime);
         char body[255];
-        sprintf(body, "{\"temperature\":%2.2f, \"measured\":\"%s\"}", analog.read_celsius(), analog.read_temperature_scale().c_str());
-        api.http_post("/post", body, "Content-Type: application/json; charset=utf-8");
+        sprintf(body, "{\"temperature\":\"%2.2f\", \"scale\":\"%s\"}", analog.read_celsius(), analog.read_temperature_scale().c_str());
+        api.http_post("/insert.php", body);
         
         ThisThread::sleep_for(60s);
     }
