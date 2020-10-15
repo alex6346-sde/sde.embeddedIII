@@ -1,8 +1,8 @@
-#DISCO-F46NG TCPSocket Example
+# DISCO-F46NG TCPSocket Example
 
-##Requirements
+## Requirements
 
 1. include mbed-os 6.3.0 in your project
-2. under mbed-os->mbed.h at line 45 add ```#include <string>```
+2. under mbed-os->mbed.h at line 45 add ``` #include <string> ```
 
-##Project overview
+## Project overview
